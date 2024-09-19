@@ -1,0 +1,183 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+const int MAX = 100;  // Tamaño maximo de la cola
+
+// Clase que define las solicitudes de constancia de estudio
+class Solicitud {
+private:
+    string nombreAlumno;
+    string carrera;
+    int materiasAprobadas;
+    float promedioGeneral;
+
+public:
+    Solicitud(string _nombreAlumno = "", string _carrera = "", int _materiasAprobadas = 0, float _promedioGeneral = 0.0)
+        : nombreAlumno(_nombreAlumno), carrera(_carrera), materiasAprobadas(_materiasAprobadas), promedioGeneral(_promedioGeneral) {}
+
+    // Sobrecarga del operador << para mostrar la solicitud
+    friend ostream& operator<<(ostream& os, const Solicitud& sol) {
+        os << "Nombre del Alumno: " << sol.nombreAlumno << ", Carrera: " << sol.carrera
+           << ", Materias Aprobadas: " << sol.materiasAprobadas << ", Promedio General: " << sol.promedioGeneral;
+        return os;
+    }
+
+    // Sobrecarga del operador >> para ingresar la solicitud
+    friend istream& operator>>(istream& is, Solicitud& sol) {
+        cout << "Ingrese nombre del alumno: ";
+        is.ignore();
+        getline(is, sol.nombreAlumno);
+        cout << "Ingrese carrera: ";
+        getline(is, sol.carrera);
+        cout << "Ingrese numero de materias aprobadas: ";
+        is >> sol.materiasAprobadas;
+        cout << "Ingrese promedio general: ";
+        is >> sol.promedioGeneral;
+        return is;
+    }
+
+};
+
+class empleado {
+private:
+    int clave;
+    string nombre;
+    string domicilio;
+    float sueldo;
+    string reportaA;
+
+
+    void CambiaDomicilio(string);
+    void CambiaReportaA(string);
+    void ActualizarSueldo(float);
+
+public:
+    empleado(int _clave = 0, string _nombre = "", string _domicilio = "", float _sueldo = 0.0, string _reportaA = "")
+        : clave(_clave), nombre(_nombre), domicilio(_domicilio), sueldo(_sueldo), reportaA(_reportaA) {}
+
+    void imprime() const;
+    friend ostream& operator<<(ostream& os, const empleado& emp) {
+        os << "Clave: " << emp.clave << ", Nombre: " << emp.nombre
+           << ", Domicilio: " << emp.domicilio << ", Sueldo: " << emp.sueldo
+           << ", Reporta a: " << emp.reportaA;
+        return os;
+    }
+
+    bool operator==(const empleado& otro) const { return clave == otro.clave; }
+    bool operator<(const empleado& otro) const { //sobrecarga de <
+        return this->sueldo < otro.sueldo;
+    }
+    bool operator>(const empleado& otro) const {  // Sobrecarga del operador >
+        return this->sueldo > otro.sueldo;
+    }
+    bool operator!=(const empleado& otro) const { // compara que ambos sueldos sean diferentes
+        return this->sueldo != otro.sueldo;
+    }
+
+    friend istream& operator>>(istream& is, empleado& emp) {
+        cout << "Ingrese clave: ";
+        is >> emp.clave;
+        cout << "Ingrese nombre: ";
+        is.ignore();
+        getline(is, emp.nombre);
+        cout << "Ingrese domicilio: ";
+        getline(is, emp.domicilio);
+        cout << "Ingrese sueldo: ";
+        is >> emp.sueldo;
+        cout << "Ingrese jefe a quien reporta: ";
+        is.ignore();
+        getline(is, emp.reportaA);
+        return is;
+    }
+};
+
+// Clase Cola para manejar las solicitudes (FIFO)
+class Cola {
+private:
+    Solicitud datos[MAX];  // Arreglo que almacena las solicitudes
+    int frente, fin;       // Índices para gestionar la cola
+
+public:
+    Cola() : frente(0), fin(-1) {}  // Inicialización
+
+    int encolar(Solicitud sol);     // Método para encolar una solicitud
+    int desencolar();               // Método para desencolar una solicitud
+    Solicitud verFrente();          // Método para ver la solicitud en el frente
+    int vacia();                    // Verifica si la cola está vacía
+    int llena();                    // Verifica si la cola está llena
+};
+
+int Cola::encolar(Solicitud sol) {
+    if (llena()) {
+        cout << "La cola esta llena, no se puede encolar." << endl;
+        return -1;
+    }
+    datos[++fin] = sol;
+    return fin;
+}
+
+int Cola::desencolar() {
+    if (vacia()) {
+        cout << "La cola esta vacia, no se puede desencolar." << endl;
+        return -1;
+    }
+    cout << "Elaborando constancia para: " << datos[frente] << endl;
+    frente++;
+    return frente;
+}
+
+Solicitud Cola::verFrente() {
+    if (vacia()) {
+        cout << "La cola esta vacia." << endl;
+        return Solicitud();  // Devuelve una solicitud vacía si la cola está vacía
+    }
+    return datos[frente];
+}
+
+int Cola::vacia() {
+    return frente > fin;
+}
+
+int Cola::llena() {
+    return fin == MAX - 1;
+}
+
+int main() {
+    Cola cola;
+    int opcion;
+    Solicitud sol;
+
+    do {
+        cout << "\n   Menu de Solicitudes" << endl;
+        cout << "1. Dar de alta la solicitud (Encolar)" << endl;
+        cout << "2. Elaborar constancia (Desencolar)" << endl;
+        cout << "3. Ver la solicitud mas proxima a atender (Frente de la cola)" << endl;
+        cout << "4. Salir" << endl;
+        cout << "Digite un numero: ";
+        cin >> opcion;
+
+        switch (opcion) {
+            case 1:
+                cin >> sol;
+                cola.encolar(sol);
+                break;
+            case 2:
+                cola.desencolar();
+                break;
+            case 3:
+                sol = cola.verFrente();
+                if (!cola.vacia()) {
+                    cout << "Solicitud en el frente: " << sol << endl;
+                }
+                break;
+            case 4:
+                cout << "Saliendo del sistema de solicitudes..." << endl;
+                break;
+            default:
+                cout << "Opcion no valida." << endl;
+        }
+    } while (opcion != 4);
+
+    return 0;
+}
